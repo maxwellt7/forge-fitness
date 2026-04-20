@@ -36,6 +36,9 @@ const env = {
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
+  iosBuildNumber: "1",
+  androidVersionCode: 1,
+  easProjectId: "ca051aa4-b386-436e-ac0a-5ebfb66e0ce2",
 };
 
 const config: ExpoConfig = {
@@ -50,6 +53,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
+    buildNumber: env.iosBuildNumber,
     "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -64,6 +68,7 @@ const config: ExpoConfig = {
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: env.androidPackage,
+    versionCode: env.androidVersionCode,
     permissions: ["POST_NOTIFICATIONS"],
     intentFilters: [
       {
@@ -124,6 +129,11 @@ const config: ExpoConfig = {
   experiments: {
     typedRoutes: true,
     reactCompiler: true,
+  },
+  extra: {
+    eas: {
+      projectId: env.easProjectId,
+    },
   },
 };
 

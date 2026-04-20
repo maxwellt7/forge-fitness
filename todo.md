@@ -15,3 +15,5 @@
 - [x] Apply premium mobile branding, color system, typography, cards, and motion polish across the app
 - [x] Generate a custom app icon and update branding assets and app configuration
 - [x] Verify the app with typecheck, tests, and status checks, then prepare final delivery
+- [x] Diagnose why publish is prompting for API secrets and document the exact steps required for iOS publishing
+- [x] Configure Expo EAS project settings and app version metadata so iOS publishing can proceed without the current build error
