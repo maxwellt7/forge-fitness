@@ -1,0 +1,17 @@
+# Project TODO
+
+- [ ] Review relevant project guidance, Expo module docs, and implementation skills before coding
+- [x] Resolve the existing TypeScript issue in the scaffold so the project has a stable baseline
+- [x] Build a premium auth entry flow with sign in and account creation states
+- [x] Create a multi-step onboarding flow for goals, training background, equipment, schedule, recovery, and preferences
+- [x] Define local data models and persistence for user profile, training plans, workout logs, readiness, and feedback
+- [x] Implement the Today screen with readiness summary, daily session overview, and quick start actions
+- [x] Implement the detailed training session experience with warm-up, strength, accessories, conditioning, and cooldown blocks
+- [x] Implement the live workout logger for sets, reps, load, effort, notes, and block completion
+- [x] Implement the post-workout review flow to capture fatigue, soreness, pain, enjoyment, and completion quality
+- [x] Implement adaptive programming logic with functional bodybuilding periodization, progression, deloading, and feedback-informed next-day adjustments
+- [x] Implement the progress and history experience with adherence, exposure, and training trend insights
+- [x] Implement the profile and preferences area for editing constraints, equipment, and training settings
+- [x] Apply premium mobile branding, color system, typography, cards, and motion polish across the app
+- [x] Generate a custom app icon and update branding assets and app configuration
+- [x] Verify the app with typecheck, tests, and status checks, then prepare final delivery
