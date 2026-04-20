@@ -22,3 +22,4 @@
 - [x] Review the user's proposed EAS CLI command and explain the safe way to initialize the existing Forge Daily project without creating a new Expo app
 - [x] Switch Forge Daily to the new EAS project ID and align the Expo slug so the iOS build no longer fails with a slug/project mismatch
 - [x] Fix the renewed EAS slug/project mismatch where the linked project expects the slug `functional-bodybuilding-coach` but the app config currently uses `forge`
+- [x] Convert Forge Daily into an installable PWA with a manifest, offline-capable web setup, and mobile-friendly install experience

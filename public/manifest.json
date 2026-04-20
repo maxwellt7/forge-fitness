@@ -1,0 +1,30 @@
+{
+  "id": "/",
+  "name": "Forge Daily",
+  "short_name": "Forge Daily",
+  "description": "Adaptive functional bodybuilding programming with daily readiness, workout logging, and progression coaching.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050814",
+  "theme_color": "#050814",
+  "icons": [
+    {
+      "src": "/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

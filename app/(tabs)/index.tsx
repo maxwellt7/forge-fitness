@@ -2,6 +2,7 @@ import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+import { PwaInstallBanner } from "@/components/pwa-install-banner";
 import { ScreenContainer } from "@/components/screen-container";
 import { useAuth } from "@/hooks/use-auth";
 import { useCoach } from "@/lib/coach/provider";
@@ -62,6 +63,8 @@ export default function TodayScreen() {
             Your functional bodybuilding plan is tuned for {profile.trainingDaysPerWeek} training days with a {profile.primaryGoal} emphasis.
           </Text>
         </View>
+
+        <PwaInstallBanner />
 
         <View className="rounded-[30px] border border-border bg-surface p-6">
           <View className="flex-row items-start justify-between gap-4">

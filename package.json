@@ -16,7 +16,9 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "qr": "node scripts/generate_qr.mjs"
+    "qr": "node scripts/generate_qr.mjs",
+    "pwa:assets": "python3.11 scripts/generate_pwa_assets.py",
+    "build:web": "pnpm pwa:assets && npx expo export -p web"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
