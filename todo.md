@@ -26,4 +26,4 @@
 - [x] Push Forge Daily to the user's GitHub repository and provide the fastest external PWA publishing workflow
 - [x] Locate the user's existing GitHub repository named `forge` or `forge-fitness` and push the current Forge Daily project state there
 - [x] Investigate whether the current Manus publish flow can be refreshed or surfaced as a website/PWA publish option instead of the mobile app build view
-- [ ] Investigate why the external Vercel deployment URL returns 404 and restore a working public Forge Daily PWA link
+- [x] Investigate why the external Vercel deployment URL returns 404 and restore a working public Forge Daily PWA link
