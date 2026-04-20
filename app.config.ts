@@ -29,7 +29,7 @@ const schemeFromBundleId = `manus${timestamp}`;
 const env = {
   // App branding - update these values directly (do not use env vars)
   appName: "Forge Daily",
-  appSlug: "functional-bodybuilding-coach",
+  appSlug: "forge",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
   logoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/112672393/R8QsirX4nbLM7QkWGemeq3/forge-daily-icon-9mkvNkCns4Mu3ymPbCmPgN.png",
@@ -38,7 +38,7 @@ const env = {
   androidPackage: bundleId,
   iosBuildNumber: "1",
   androidVersionCode: 1,
-  easProjectId: "ca051aa4-b386-436e-ac0a-5ebfb66e0ce2",
+  easProjectId: "e71c3be5-6290-4173-a1e9-02a460a84018",
 };
 
 const config: ExpoConfig = {

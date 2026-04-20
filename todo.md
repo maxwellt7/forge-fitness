@@ -17,3 +17,7 @@
 - [x] Verify the app with typecheck, tests, and status checks, then prepare final delivery
 - [x] Diagnose why publish is prompting for API secrets and document the exact steps required for iOS publishing
 - [x] Configure Expo EAS project settings and app version metadata so iOS publishing can proceed without the current build error
+- [ ] Clarify which external service should be integrated, identify any required API keys, and guide the user through the correct iOS build workflow
+- [ ] Reported that the Manus publish UI is only showing Android and not offering an iOS publish option
+- [x] Review the user's proposed EAS CLI command and explain the safe way to initialize the existing Forge Daily project without creating a new Expo app
+- [x] Switch Forge Daily to the new EAS project ID and align the Expo slug so the iOS build no longer fails with a slug/project mismatch

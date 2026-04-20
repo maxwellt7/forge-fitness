@@ -15,8 +15,9 @@ describe("EAS publishing configuration", () => {
     expect(easConfig.build?.production).toBeTruthy();
   });
 
-  it("links the app config to the expected EAS project", () => {
-    expect(config.extra?.eas?.projectId).toBe("ca051aa4-b386-436e-ac0a-5ebfb66e0ce2");
+  it("links the app config to the expected EAS project and slug", () => {
+    expect(config.extra?.eas?.projectId).toBe("e71c3be5-6290-4173-a1e9-02a460a84018");
+    expect(config.slug).toBe("forge");
   });
 
   it("sets explicit native build version metadata", () => {
