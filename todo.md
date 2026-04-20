@@ -23,3 +23,5 @@
 - [x] Switch Forge Daily to the new EAS project ID and align the Expo slug so the iOS build no longer fails with a slug/project mismatch
 - [x] Fix the renewed EAS slug/project mismatch where the linked project expects the slug `functional-bodybuilding-coach` but the app config currently uses `forge`
 - [x] Convert Forge Daily into an installable PWA with a manifest, offline-capable web setup, and mobile-friendly install experience
+- [ ] Push Forge Daily to the user's GitHub repository and provide the fastest external PWA publishing workflow
+- [ ] Locate the user's existing GitHub repository named `forge` or `forge-fitness` and push the current Forge Daily project state there
