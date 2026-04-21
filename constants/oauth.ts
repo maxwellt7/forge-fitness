@@ -6,6 +6,7 @@ import * as ReactNative from "react-native";
 const bundleId = "space.manus.functional.bodybuilding.coach.t20260419232249";
 const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
 const schemeFromBundleId = `manus${timestamp}`;
+const HOSTED_WEB_API_BASE_URL = "https://funcbodycoch-r8qsirx4.manus.space";
 
 const env = {
   portal: process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL ?? "",
@@ -24,30 +25,61 @@ export const OWNER_OPEN_ID = env.ownerId;
 export const OWNER_NAME = env.ownerName;
 export const API_BASE_URL = env.apiBaseUrl;
 
+function normalizeBaseUrl(value: string): string {
+  return value.replace(/\/$/, "");
+}
+
 /**
  * Get the API base URL, deriving from current hostname if not set.
  * Metro runs on 8081, API server runs on 3000.
  * URL pattern: https://PORT-sandboxid.region.domain
  */
 export function getApiBaseUrl(): string {
-  // If API_BASE_URL is set, use it
   if (API_BASE_URL) {
-    return API_BASE_URL.replace(/\/$/, "");
+    return normalizeBaseUrl(API_BASE_URL);
   }
 
-  // On web, derive from current hostname by replacing port 8081 with 3000
   if (ReactNative.Platform.OS === "web" && typeof window !== "undefined" && window.location) {
-    const { protocol, hostname } = window.location;
-    // Pattern: 8081-sandboxid.region.domain -> 3000-sandboxid.region.domain
+    const { protocol, hostname, origin } = window.location;
     const apiHostname = hostname.replace(/^8081-/, "3000-");
     if (apiHostname !== hostname) {
       return `${protocol}//${apiHostname}`;
     }
+
+    if (hostname.endsWith(".manus.space")) {
+      return normalizeBaseUrl(origin);
+    }
+
+    if (hostname.endsWith(".vercel.app")) {
+      return HOSTED_WEB_API_BASE_URL;
+    }
   }
 
-  // Fallback to empty (will use relative URL)
   return "";
 }
+
+/**
+ * Get the redirect URI for OAuth callback.
+ * - Web: uses API server callback endpoint and returns the user to the current frontend origin
+ * - Native: uses deep link scheme
+ */
+export const getRedirectUri = () => {
+  if (ReactNative.Platform.OS === "web") {
+    const apiBaseUrl = getApiBaseUrl();
+    const callbackBaseUrl = apiBaseUrl || (typeof window !== "undefined" ? window.location.origin : "");
+    const callbackUrl = new URL("/api/oauth/callback", `${normalizeBaseUrl(callbackBaseUrl)}/`);
+
+    if (typeof window !== "undefined" && window.location?.origin) {
+      callbackUrl.searchParams.set("returnTo", window.location.origin);
+    }
+
+    return callbackUrl.toString();
+  }
+
+  return Linking.createURL("/oauth/callback", {
+    scheme: env.deepLinkScheme,
+  });
+};
 
 export const SESSION_TOKEN_KEY = "app_session_token";
 export const USER_INFO_KEY = "manus-runtime-user-info";
@@ -61,21 +93,6 @@ const encodeState = (value: string) => {
     return BufferImpl.from(value, "utf-8").toString("base64");
   }
   return value;
-};
-
-/**
- * Get the redirect URI for OAuth callback.
- * - Web: uses API server callback endpoint
- * - Native: uses deep link scheme
- */
-export const getRedirectUri = () => {
-  if (ReactNative.Platform.OS === "web") {
-    return `${getApiBaseUrl()}/api/oauth/callback`;
-  } else {
-    return Linking.createURL("/oauth/callback", {
-      scheme: env.deepLinkScheme,
-    });
-  }
 };
 
 export const getLoginUrl = () => {
@@ -105,7 +122,6 @@ export async function startOAuthLogin(): Promise<string | null> {
   const loginUrl = getLoginUrl();
 
   if (ReactNative.Platform.OS === "web") {
-    // On web, just redirect
     if (typeof window !== "undefined") {
       window.location.href = loginUrl;
     }
@@ -115,7 +131,6 @@ export async function startOAuthLogin(): Promise<string | null> {
   const supported = await Linking.canOpenURL(loginUrl);
   if (!supported) {
     console.warn("[OAuth] Cannot open login URL: URL scheme not supported");
-    // 可考虑抛出错误或返回错误状态，让调用方处理
     return null;
   }
 
@@ -123,9 +138,7 @@ export async function startOAuthLogin(): Promise<string | null> {
     await Linking.openURL(loginUrl);
   } catch (error) {
     console.error("[OAuth] Failed to open login URL:", error);
-    // 可考虑抛出错误让调用方处理
   }
 
-  // The OAuth callback will reopen the app via deep link.
   return null;
 }

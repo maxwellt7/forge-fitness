@@ -9,6 +9,38 @@ function getQueryParam(req: Request, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function getDefaultFrontendUrl(): string {
+  return process.env.EXPO_WEB_PREVIEW_URL || process.env.EXPO_PACKAGER_PROXY_URL || "http://localhost:8081";
+}
+
+function isAllowedFrontendRedirect(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".vercel.app") ||
+    hostname.endsWith(".manus.space") ||
+    hostname.endsWith(".manus.computer")
+  );
+}
+
+function getFrontendRedirectUrl(req: Request): string {
+  const returnTo = getQueryParam(req, "returnTo");
+  if (!returnTo) {
+    return getDefaultFrontendUrl();
+  }
+
+  try {
+    const parsed = new URL(returnTo);
+    if ((parsed.protocol === "https:" || parsed.protocol === "http:") && isAllowedFrontendRedirect(parsed.hostname)) {
+      return parsed.toString();
+    }
+  } catch (error) {
+    console.warn("[OAuth] Invalid returnTo URL provided", { returnTo, error });
+  }
+
+  return getDefaultFrontendUrl();
+}
+
 async function syncUser(userInfo: {
   openId?: string | null;
   name?: string | null;
@@ -83,12 +115,7 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Redirect to the frontend URL (Expo web on port 8081)
-      // Cookie is set with parent domain so it works across both 3000 and 8081 subdomains
-      const frontendUrl =
-        process.env.EXPO_WEB_PREVIEW_URL ||
-        process.env.EXPO_PACKAGER_PROXY_URL ||
-        "http://localhost:8081";
+      const frontendUrl = getFrontendRedirectUrl(req);
       res.redirect(302, frontendUrl);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
@@ -134,7 +161,6 @@ export function registerOAuthRoutes(app: Express) {
     res.json({ success: true });
   });
 
-  // Get current authenticated user - works with both cookie (web) and Bearer token (mobile)
   app.get("/api/auth/me", async (req: Request, res: Response) => {
     try {
       const user = await sdk.authenticateRequest(req);
@@ -145,15 +171,10 @@ export function registerOAuthRoutes(app: Express) {
     }
   });
 
-  // Establish session cookie from Bearer token
-  // Used by iframe preview: frontend receives token via postMessage, then calls this endpoint
-  // to get a proper Set-Cookie response from the backend (3000-xxx domain)
   app.post("/api/auth/session", async (req: Request, res: Response) => {
     try {
-      // Authenticate using Bearer token from Authorization header
       const user = await sdk.authenticateRequest(req);
 
-      // Get the token from the Authorization header to set as cookie
       const authHeader = req.headers.authorization || req.headers.Authorization;
       if (typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
         res.status(400).json({ error: "Bearer token required" });
@@ -161,7 +182,6 @@ export function registerOAuthRoutes(app: Express) {
       }
       const token = authHeader.slice("Bearer ".length).trim();
 
-      // Set cookie for this domain (3000-xxx)
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
