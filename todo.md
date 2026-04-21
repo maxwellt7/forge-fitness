@@ -28,4 +28,4 @@
 - [x] Investigate whether the current Manus publish flow can be refreshed or surfaced as a website/PWA publish option instead of the mobile app build view
 - [x] Investigate why the external Vercel deployment URL returns 404 and restore a working public Forge Daily PWA link
 - [x] Investigate why the deployed Forge Daily web app loads but does not scroll on mobile browsers, then restore correct vertical scrolling
-- [ ] Investigate why the Forge Daily sign-in button does not complete authentication on the deployed web app, then restore a working sign-in flow
+- [x] Investigate why the Forge Daily sign-in button does not complete authentication on the deployed web app, then restore a working sign-in flow
