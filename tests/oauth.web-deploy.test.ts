@@ -6,6 +6,7 @@ const root = path.resolve(__dirname, "..");
 const oauthClientPath = path.join(root, "constants", "oauth.ts");
 const oauthServerPath = path.join(root, "server", "_core", "oauth.ts");
 const oauthSdkPath = path.join(root, "server", "_core", "sdk.ts");
+const oauthCallbackPath = path.join(root, "app", "oauth", "callback.tsx");
 
 describe("Hosted web OAuth flow", () => {
   it("uses a stable hosted API base URL for deployed web sign-in", () => {
@@ -69,5 +70,12 @@ describe("Hosted web OAuth flow", () => {
     expect(source).toContain('const encodedUser = getQueryParam(req, "user")');
     expect(source).toContain('new URL("/oauth/callback", `${frontendUrl.replace(/\\/$/, "")}/`)');
     expect(source).toContain('callbackRedirectUrl.searchParams.set("sessionToken", sessionToken)');
+  });
+
+  it("establishes the backend web session cookie when the frontend callback receives a session token", () => {
+    const source = readFileSync(oauthCallbackPath, "utf8");
+
+    expect(source).toContain('if (Platform.OS === "web")');
+    expect(source).toContain('await Api.establishSession(params.sessionToken)');
   });
 });

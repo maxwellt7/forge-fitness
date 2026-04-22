@@ -31,3 +31,5 @@
 - [x] Investigate why the Forge Daily sign-in button does not complete authentication on the deployed web app, then restore a working sign-in flow
 - [x] Convert Forge Daily into a stable website deployment and determine the most durable public hosting setup available
 - [x] Re-investigate why the deployed Forge Daily website sign-in button is still not working and restore a reliable sign-in flow
+- [x] Confirm the latest Forge Daily changes are pushed to the connected GitHub repository and report the remote sync status
+- [x] Investigate why the deployed Forge Daily OAuth callback returns "code and state are required" after login and restore a working hosted login flow
