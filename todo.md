@@ -35,4 +35,4 @@
 - [x] Investigate why the deployed Forge Daily OAuth callback returns "code and state are required" after login and restore a working hosted login flow
 - [x] Re-investigate the persistent hosted OAuth callback failure because the deployed Forge Daily login flow still returns the same missing code/state error after the previous repair
 - [x] Investigate why the deployed Forge Daily login flow redirects to http://localhost:8081 after authentication and restore the live website as the hosted return target
-- [ ] Investigate why the deployed Forge Daily OAuth callback URL merges `returnTo` with `code` and `state`, then restore a valid hosted callback query string
+- [x] Investigate why the deployed Forge Daily OAuth callback URL merges `returnTo` with `code` and `state`, then restore a valid hosted callback query string
