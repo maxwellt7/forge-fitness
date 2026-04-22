@@ -93,20 +93,70 @@ function buildUserResponse(
   };
 }
 
+function encodeUserForRedirect(user: ReturnType<typeof buildUserResponse>): string {
+  return Buffer.from(JSON.stringify(user), "utf-8").toString("base64");
+}
+
+function buildFrontendCallbackRedirect(
+  frontendUrl: string,
+  sessionToken: string,
+  encodedUser?: string,
+): string {
+  const callbackRedirectUrl = new URL("/oauth/callback", `${frontendUrl.replace(/\/$/, "")}/`);
+  callbackRedirectUrl.searchParams.set("sessionToken", sessionToken);
+  if (encodedUser) {
+    callbackRedirectUrl.searchParams.set("user", encodedUser);
+  }
+  return callbackRedirectUrl.toString();
+}
+
+async function authenticateSessionToken(req: Request, sessionToken: string) {
+  const originalAuthorization = req.headers.authorization;
+  req.headers.authorization = `Bearer ${sessionToken}`;
+
+  try {
+    return await sdk.authenticateRequest(req);
+  } finally {
+    if (typeof originalAuthorization === "string") {
+      req.headers.authorization = originalAuthorization;
+    } else {
+      delete req.headers.authorization;
+    }
+  }
+}
+
 export function registerOAuthRoutes(app: Express) {
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
+    const sessionTokenFromQuery = getQueryParam(req, "sessionToken");
+    const encodedUser = getQueryParam(req, "user");
+    const frontendUrl = getFrontendRedirectUrl(req);
 
     if (!code || !state) {
-      res.status(400).json({ error: "code and state are required" });
+      if (!sessionTokenFromQuery) {
+        res.status(400).json({ error: "code and state are required" });
+        return;
+      }
+
+      try {
+        const authenticatedUser = await authenticateSessionToken(req, sessionTokenFromQuery);
+        const cookieOptions = getSessionCookieOptions(req);
+        res.cookie(COOKIE_NAME, sessionTokenFromQuery, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        const redirectUser = encodedUser || encodeUserForRedirect(buildUserResponse(authenticatedUser));
+        res.redirect(302, buildFrontendCallbackRedirect(frontendUrl, sessionTokenFromQuery, redirectUser));
+      } catch (error) {
+        console.error("[OAuth] Hosted callback session fallback failed", error);
+        res.status(500).json({ error: "OAuth callback failed" });
+      }
       return;
     }
 
     try {
       const tokenResponse = await sdk.exchangeCodeForToken(code, state);
       const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-      await syncUser(userInfo);
+      const user = await syncUser(userInfo);
       const sessionToken = await sdk.createSessionToken(userInfo.openId!, {
         name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
@@ -115,8 +165,8 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      const frontendUrl = getFrontendRedirectUrl(req);
-      res.redirect(302, frontendUrl);
+      const redirectUser = encodeUserForRedirect(buildUserResponse(user));
+      res.redirect(302, buildFrontendCallbackRedirect(frontendUrl, sessionToken, redirectUser));
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
       res.status(500).json({ error: "OAuth callback failed" });

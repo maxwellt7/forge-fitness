@@ -33,11 +33,21 @@ describe("Hosted web OAuth flow", () => {
     expect(source).not.toContain('new URL("/api/oauth/login"');
   });
 
-  it("redirects the OAuth callback back to the requesting frontend when returnTo is provided", () => {
+  it("uses returnTo to determine the requesting frontend before building the hosted callback redirect", () => {
     const source = readFileSync(oauthServerPath, "utf8");
 
     expect(source).toContain('const returnTo = getQueryParam(req, "returnTo")');
     expect(source).toContain("new URL(returnTo)");
-    expect(source).toContain("res.redirect(302, frontendUrl)");
+    expect(source).toContain("const frontendUrl = getFrontendRedirectUrl(req)");
+    expect(source).toContain("buildFrontendCallbackRedirect(frontendUrl");
+  });
+
+  it("supports a hosted callback sessionToken fallback and redirects into the frontend callback screen", () => {
+    const source = readFileSync(oauthServerPath, "utf8");
+
+    expect(source).toContain('const sessionTokenFromQuery = getQueryParam(req, "sessionToken")');
+    expect(source).toContain('const encodedUser = getQueryParam(req, "user")');
+    expect(source).toContain('new URL("/oauth/callback", `${frontendUrl.replace(/\\/$/, "")}/`)');
+    expect(source).toContain('callbackRedirectUrl.searchParams.set("sessionToken", sessionToken)');
   });
 });
