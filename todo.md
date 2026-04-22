@@ -36,3 +36,5 @@
 - [x] Re-investigate the persistent hosted OAuth callback failure because the deployed Forge Daily login flow still returns the same missing code/state error after the previous repair
 - [x] Investigate why the deployed Forge Daily login flow redirects to http://localhost:8081 after authentication and restore the live website as the hosted return target
 - [x] Investigate why the deployed Forge Daily OAuth callback URL merges `returnTo` with `code` and `state`, then restore a valid hosted callback query string
+- [ ] Re-investigate why the deployed Forge Daily OAuth flow is still redirecting to `http://localhost:8081/` after login and restore the live hosted return target
+- [ ] Run the full authenticated Forge Daily user flow on the live site, test every accessible feature end to end, and capture any broken behavior for repair

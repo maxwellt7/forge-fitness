@@ -55,12 +55,18 @@ describe("Hosted web OAuth flow", () => {
     expect(source).toContain("redirectUri: this.decodeState(state)");
   });
 
-  it("uses returnTo to determine the requesting frontend before building the hosted callback redirect", () => {
+   it("uses returnTo to determine the requesting frontend before building the hosted callback redirect", () => {
     const source = readFileSync(oauthServerPath, "utf8");
-
     expect(source).toContain('const returnTo = getQueryParam(req, "returnTo") ?? (state ? getReturnToFromState(state) : undefined)');
     expect(source).toContain("JSON.parse(decodedState)");
     expect(source).toContain("buildFrontendCallbackRedirect(frontendUrl");
+  });
+
+  it("falls back to the live hosted website instead of localhost when hosted callbacks cannot recover returnTo", () => {
+    const source = readFileSync(oauthServerPath, "utf8");
+    expect(source).toContain('const HOSTED_WEB_FRONTEND_URL = "https://forge-fitness-iota.vercel.app"');
+    expect(source).toContain('if (requestHost.endsWith(".manus.space")) {');
+    expect(source).toContain('return HOSTED_WEB_FRONTEND_URL');
   });
 
   it("supports a hosted callback sessionToken fallback and redirects into the frontend callback screen", () => {

@@ -35,7 +35,15 @@ function decodeState(state: string): { redirectUri?: string; returnTo?: string }
   }
 }
 
-function getDefaultFrontendUrl(): string {
+const HOSTED_WEB_FRONTEND_URL = "https://forge-fitness-iota.vercel.app";
+
+function getDefaultFrontendUrl(req?: Request): string {
+  const requestHost = req?.headers.host?.split(":")[0] ?? "";
+
+  if (requestHost.endsWith(".manus.space")) {
+    return HOSTED_WEB_FRONTEND_URL;
+  }
+
   return process.env.EXPO_WEB_PREVIEW_URL || process.env.EXPO_PACKAGER_PROXY_URL || "http://localhost:8081";
 }
 
@@ -56,7 +64,7 @@ function getReturnToFromState(state: string): string | undefined {
 function getFrontendRedirectUrl(req: Request, state?: string): string {
   const returnTo = getQueryParam(req, "returnTo") ?? (state ? getReturnToFromState(state) : undefined);
   if (!returnTo) {
-    return getDefaultFrontendUrl();
+    return getDefaultFrontendUrl(req);
   }
 
   try {
