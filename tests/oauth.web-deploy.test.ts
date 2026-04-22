@@ -24,10 +24,10 @@ describe("Hosted web OAuth flow", () => {
     expect(source).toContain("env.appId || HOSTED_WEB_APP_ID");
   });
 
-  it("does not embed returnTo in the web callback query string, because Manus app-auth appends its own code and state parameters", () => {
+  it("includes returnTo in the web callback query string so the backend can recover the live frontend target even if hosted state decoding is lost", () => {
     const source = readFileSync(oauthClientPath, "utf8");
 
-    expect(source).not.toContain('callbackUrl.searchParams.set("returnTo"');
+    expect(source).toContain('callbackUrl.searchParams.set("returnTo", window.location.origin)');
   });
 
   it("stores the frontend return target inside the encoded OAuth state for web sign-in", () => {
