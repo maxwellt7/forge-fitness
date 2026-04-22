@@ -9,6 +9,32 @@ function getQueryParam(req: Request, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function decodeState(state: string): { redirectUri?: string; returnTo?: string } {
+  if (!state) {
+    return {};
+  }
+
+  try {
+    const decodedState = Buffer.from(state, "base64").toString("utf-8");
+
+    try {
+      const parsed = JSON.parse(decodedState);
+      if (parsed && typeof parsed.redirectUri === "string") {
+        return {
+          redirectUri: parsed.redirectUri,
+          returnTo: typeof parsed.returnTo === "string" ? parsed.returnTo : undefined,
+        };
+      }
+    } catch {
+      // Backward compatibility: older auth flows stored only the redirectUri.
+    }
+
+    return { redirectUri: decodedState };
+  } catch {
+    return {};
+  }
+}
+
 function getDefaultFrontendUrl(): string {
   return process.env.EXPO_WEB_PREVIEW_URL || process.env.EXPO_PACKAGER_PROXY_URL || "http://localhost:8081";
 }
@@ -23,8 +49,12 @@ function isAllowedFrontendRedirect(hostname: string): boolean {
   );
 }
 
-function getFrontendRedirectUrl(req: Request): string {
-  const returnTo = getQueryParam(req, "returnTo");
+function getReturnToFromState(state: string): string | undefined {
+  return decodeState(state).returnTo;
+}
+
+function getFrontendRedirectUrl(req: Request, state?: string): string {
+  const returnTo = getQueryParam(req, "returnTo") ?? (state ? getReturnToFromState(state) : undefined);
   if (!returnTo) {
     return getDefaultFrontendUrl();
   }
@@ -131,7 +161,7 @@ export function registerOAuthRoutes(app: Express) {
     const state = getQueryParam(req, "state");
     const sessionTokenFromQuery = getQueryParam(req, "sessionToken");
     const encodedUser = getQueryParam(req, "user");
-    const frontendUrl = getFrontendRedirectUrl(req);
+    const frontendUrl = getFrontendRedirectUrl(req, state);
 
     if (!code || !state) {
       if (!sessionTokenFromQuery) {

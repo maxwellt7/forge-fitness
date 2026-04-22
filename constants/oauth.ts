@@ -62,7 +62,7 @@ export function getApiBaseUrl(): string {
 
 /**
  * Get the redirect URI for OAuth callback.
- * - Web: uses API server callback endpoint and returns the user to the current frontend origin
+ * - Web: uses API server callback endpoint
  * - Native: uses deep link scheme
  */
 export const getRedirectUri = () => {
@@ -70,10 +70,6 @@ export const getRedirectUri = () => {
     const apiBaseUrl = getApiBaseUrl();
     const callbackBaseUrl = apiBaseUrl || (typeof window !== "undefined" ? window.location.origin : "");
     const callbackUrl = new URL("/api/oauth/callback", `${normalizeBaseUrl(callbackBaseUrl)}/`);
-
-    if (typeof window !== "undefined" && window.location?.origin) {
-      callbackUrl.searchParams.set("returnTo", window.location.origin);
-    }
 
     return callbackUrl.toString();
   }
@@ -86,7 +82,7 @@ export const getRedirectUri = () => {
 export const SESSION_TOKEN_KEY = "app_session_token";
 export const USER_INFO_KEY = "manus-runtime-user-info";
 
-const encodeState = (value: string) => {
+const encodeStateValue = (value: string) => {
   if (typeof globalThis.btoa === "function") {
     return globalThis.btoa(value);
   }
@@ -97,9 +93,18 @@ const encodeState = (value: string) => {
   return value;
 };
 
+function encodeOAuthState(redirectUri: string): string {
+  if (ReactNative.Platform.OS === "web") {
+    const returnTo = typeof window !== "undefined" ? window.location.origin : undefined;
+    return encodeStateValue(JSON.stringify({ redirectUri, returnTo }));
+  }
+
+  return encodeStateValue(redirectUri);
+}
+
 export const getLoginUrl = () => {
   const redirectUri = getRedirectUri();
-  const state = encodeState(redirectUri);
+  const state = encodeOAuthState(redirectUri);
 
   const url = new URL(`${OAUTH_PORTAL_URL}/app-auth`);
   url.searchParams.set("appId", APP_ID);
