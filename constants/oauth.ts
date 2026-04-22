@@ -71,10 +71,6 @@ export const getRedirectUri = () => {
     const callbackBaseUrl = apiBaseUrl || (typeof window !== "undefined" ? window.location.origin : "");
     const callbackUrl = new URL("/api/oauth/callback", `${normalizeBaseUrl(callbackBaseUrl)}/`);
 
-    if (typeof window !== "undefined" && window.location?.origin) {
-      callbackUrl.searchParams.set("returnTo", window.location.origin);
-    }
-
     return callbackUrl.toString();
   }
 
