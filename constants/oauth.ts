@@ -7,6 +7,8 @@ const bundleId = "space.manus.functional.bodybuilding.coach.t20260419232249";
 const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
 const schemeFromBundleId = `manus${timestamp}`;
 const HOSTED_WEB_API_BASE_URL = "https://funcbodycoch-r8qsirx4.manus.space";
+const HOSTED_WEB_APP_ID = "R8QsirX4nbLM7QkWGemeq3";
+const HOSTED_WEB_OAUTH_PORTAL_URL = "https://manus.im";
 
 const env = {
   portal: process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL ?? "",
@@ -18,9 +20,9 @@ const env = {
   deepLinkScheme: schemeFromBundleId,
 };
 
-export const OAUTH_PORTAL_URL = env.portal;
+export const OAUTH_PORTAL_URL = env.portal || HOSTED_WEB_OAUTH_PORTAL_URL;
 export const OAUTH_SERVER_URL = env.server;
-export const APP_ID = env.appId;
+export const APP_ID = env.appId || HOSTED_WEB_APP_ID;
 export const OWNER_OPEN_ID = env.ownerId;
 export const OWNER_NAME = env.ownerName;
 export const API_BASE_URL = env.apiBaseUrl;

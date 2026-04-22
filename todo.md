@@ -29,3 +29,5 @@
 - [x] Investigate why the external Vercel deployment URL returns 404 and restore a working public Forge Daily PWA link
 - [x] Investigate why the deployed Forge Daily web app loads but does not scroll on mobile browsers, then restore correct vertical scrolling
 - [x] Investigate why the Forge Daily sign-in button does not complete authentication on the deployed web app, then restore a working sign-in flow
+- [x] Convert Forge Daily into a stable website deployment and determine the most durable public hosting setup available
+- [ ] Re-investigate why the deployed Forge Daily website sign-in button is still not working and restore a reliable sign-in flow

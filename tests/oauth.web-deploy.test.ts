@@ -7,6 +7,15 @@ const oauthClientPath = path.join(root, "constants", "oauth.ts");
 const oauthServerPath = path.join(root, "server", "_core", "oauth.ts");
 
 describe("Hosted web OAuth flow", () => {
+  it("provides non-empty hosted web OAuth fallbacks for app ID and portal URL", () => {
+    const source = readFileSync(oauthClientPath, "utf8");
+
+    expect(source).toContain('const HOSTED_WEB_APP_ID = "R8QsirX4nbLM7QkWGemeq3"');
+    expect(source).toContain('const HOSTED_WEB_OAUTH_PORTAL_URL = "https://manus.im"');
+    expect(source).toContain("env.portal || HOSTED_WEB_OAUTH_PORTAL_URL");
+    expect(source).toContain("env.appId || HOSTED_WEB_APP_ID");
+  });
+
   it("uses a stable hosted API base URL and includes a returnTo parameter in the web callback URI", () => {
     const source = readFileSync(oauthClientPath, "utf8");
 
