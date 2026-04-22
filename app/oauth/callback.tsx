@@ -4,7 +4,7 @@ import * as Auth from "@/lib/_core/auth";
 import * as Linking from "expo-linking";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Text } from "react-native";
+import { ActivityIndicator, Platform, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OAuthCallback() {
@@ -34,6 +34,13 @@ export default function OAuthCallback() {
         if (params.sessionToken) {
           console.log("[OAuth] Session token found in params (web callback)");
           await Auth.setSessionToken(params.sessionToken);
+
+          if (Platform.OS === "web") {
+            const established = await Api.establishSession(params.sessionToken);
+            if (!established) {
+              throw new Error("Failed to establish web session");
+            }
+          }
 
           // Decode and store user info if available
           if (params.user) {
@@ -191,6 +198,13 @@ export default function OAuthCallback() {
           // Store session token
           await Auth.setSessionToken(result.sessionToken);
           console.log("[OAuth] Session token stored successfully");
+
+          if (Platform.OS === "web") {
+            const established = await Api.establishSession(result.sessionToken);
+            if (!established) {
+              throw new Error("Failed to establish web session");
+            }
+          }
 
           // Store user info if available
           if (result.user) {
