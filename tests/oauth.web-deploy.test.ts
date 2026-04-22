@@ -24,11 +24,28 @@ describe("Hosted web OAuth flow", () => {
     expect(source).toContain('searchParams.set("returnTo"');
   });
 
+  it("starts hosted web sign-in through the backend login route so the frontend no longer needs a public app id", () => {
+    const source = readFileSync(oauthClientPath, "utf8");
+
+    expect(source).toContain('if (ReactNative.Platform.OS === "web")');
+    expect(source).toContain('new URL("/api/oauth/login"');
+    expect(source).toContain('searchParams.set("returnTo"');
+  });
+
   it("redirects the OAuth callback back to the requesting frontend when returnTo is provided", () => {
     const source = readFileSync(oauthServerPath, "utf8");
 
     expect(source).toContain('const returnTo = getQueryParam(req, "returnTo")');
     expect(source).toContain("new URL(returnTo)");
     expect(source).toContain("res.redirect(302, frontendUrl)");
+  });
+
+  it("builds the hosted login redirect on the server with the configured app id and a portal fallback", () => {
+    const source = readFileSync(oauthServerPath, "utf8");
+
+    expect(source).toContain('app.get("/api/oauth/login"');
+    expect(source).toContain("ENV.appId");
+    expect(source).toContain("https://manus.im");
+    expect(source).toContain('searchParams.set("appId", ENV.appId)');
   });
 });

@@ -98,6 +98,18 @@ const encodeState = (value: string) => {
 };
 
 export const getLoginUrl = () => {
+  if (ReactNative.Platform.OS === "web") {
+    const apiBaseUrl = getApiBaseUrl();
+    const loginBaseUrl = apiBaseUrl || (typeof window !== "undefined" ? window.location.origin : "");
+    const url = new URL("/api/oauth/login", `${normalizeBaseUrl(loginBaseUrl)}/`);
+
+    if (typeof window !== "undefined" && window.location?.origin) {
+      url.searchParams.set("returnTo", window.location.origin);
+    }
+
+    return url.toString();
+  }
+
   const redirectUri = getRedirectUri();
   const state = encodeState(redirectUri);
 

@@ -2,6 +2,7 @@ import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const.js";
 import type { Express, Request, Response } from "express";
 import { getUserByOpenId, upsertUser } from "../db";
 import { getSessionCookieOptions } from "./cookies";
+import { ENV } from "./env";
 import { sdk } from "./sdk";
 
 function getQueryParam(req: Request, key: string): string | undefined {
@@ -11,6 +12,10 @@ function getQueryParam(req: Request, key: string): string | undefined {
 
 function getDefaultFrontendUrl(): string {
   return process.env.EXPO_WEB_PREVIEW_URL || process.env.EXPO_PACKAGER_PROXY_URL || "http://localhost:8081";
+}
+
+function getPortalBaseUrl(): string {
+  return (process.env.VITE_OAUTH_PORTAL_URL || process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL || "https://manus.im").replace(/\/$/, "");
 }
 
 function isAllowedFrontendRedirect(hostname: string): boolean {
@@ -94,6 +99,28 @@ function buildUserResponse(
 }
 
 export function registerOAuthRoutes(app: Express) {
+  app.get("/api/oauth/login", (req: Request, res: Response) => {
+    if (!ENV.appId) {
+      res.status(500).json({ error: "OAuth app id is not configured" });
+      return;
+    }
+
+    const callbackUrl = new URL("/api/oauth/callback", `${req.protocol}://${req.get("host") || "localhost"}`);
+    const returnTo = getQueryParam(req, "returnTo");
+    if (returnTo) {
+      callbackUrl.searchParams.set("returnTo", returnTo);
+    }
+
+    const state = Buffer.from(callbackUrl.toString(), "utf-8").toString("base64");
+    const loginUrl = new URL("/app-auth", `${getPortalBaseUrl()}/`);
+    loginUrl.searchParams.set("appId", ENV.appId);
+    loginUrl.searchParams.set("redirectUri", callbackUrl.toString());
+    loginUrl.searchParams.set("state", state);
+    loginUrl.searchParams.set("type", "signIn");
+
+    res.redirect(302, loginUrl.toString());
+  });
+
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
